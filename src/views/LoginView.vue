@@ -5,6 +5,13 @@ import { authStore } from '../stores/auth.js'
 
 const router = useRouter()
 
+const selectedRole = ref('')
+const roles = [
+  { key: 'patient', label: '患者', desc: '查看挂号记录与就诊信息', icon: '🏥' },
+  { key: 'doctor', label: '医生', desc: '接诊、开具处方与医技申请', icon: '👨‍⚕️' },
+  { key: 'admin', label: '管理员', desc: '系统管理与数据维护', icon: '⚙️' },
+]
+
 const form = reactive({
   id: '',
   password: ''
@@ -12,15 +19,26 @@ const form = reactive({
 
 const loading = ref(false)
 const errorMsg = ref('')
+const roleError = ref('')
 const errors = reactive({
   id: '',
   password: ''
 })
 
+function selectRole(key) {
+  selectedRole.value = key
+  roleError.value = ''
+}
+
 function validateLogin() {
   errors.id = ''
   errors.password = ''
+  roleError.value = ''
 
+  if (!selectedRole.value) {
+    roleError.value = '请选择登录角色'
+    return false
+  }
   if (!form.id) {
     errors.id = '请输入员工工号'
     return false
@@ -41,7 +59,7 @@ async function handleLogin() {
   if (!validateLogin()) return
   loading.value = true
   try {
-    await authStore.login(Number(form.id), form.password)
+    await authStore.login(Number(form.id), form.password, selectedRole.value)
     await router.push('/')
   } catch (err) {
     errorMsg.value = err.message || '登录失败，请检查工号和密码'
@@ -63,8 +81,24 @@ async function handleLogin() {
           </svg>
         </div>
         <h1 class="login-title">东软智慧云脑诊疗平台</h1>
-        <p class="login-subtitle">医院员工登录</p>
+        <p class="login-subtitle">选择角色登录</p>
       </div>
+
+      <!-- 角色选择 -->
+      <div class="role-selector">
+        <div
+          v-for="r in roles"
+          :key="r.key"
+          class="role-card"
+          :class="{ selected: selectedRole === r.key }"
+          @click="selectRole(r.key)"
+        >
+          <span class="role-icon">{{ r.icon }}</span>
+          <span class="role-label">{{ r.label }}</span>
+          <span class="role-desc">{{ r.desc }}</span>
+        </div>
+      </div>
+      <p v-if="roleError" class="form-error role-error">{{ roleError }}</p>
 
       <!-- 错误提示 -->
       <div v-if="errorMsg" class="alert alert-error">
@@ -76,7 +110,7 @@ async function handleLogin() {
         {{ errorMsg }}
       </div>
 
-      <!-- =========== 登录表单 =========== -->
+      <!-- 登录表单 -->
       <form class="login-form" @submit.prevent="handleLogin">
         <div class="form-group">
           <label class="form-label" for="login-id">员工工号</label>
@@ -136,7 +170,7 @@ async function handleLogin() {
 
 .login-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   background: var(--color-bg-card);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -145,7 +179,7 @@ async function handleLogin() {
 
 .login-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .login-logo {
@@ -170,6 +204,58 @@ async function handleLogin() {
   color: var(--color-text-secondary);
 }
 
+/* 角色选择卡片 */
+.role-selector {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.75rem 0.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.role-card:hover {
+  border-color: #93c5fd;
+  background: #f8fafc;
+}
+
+.role-card.selected {
+  border-color: var(--color-primary);
+  background: #eff6ff;
+}
+
+.role-icon {
+  font-size: 1.5rem;
+}
+
+.role-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.role-desc {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+}
+
+.role-error {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
 .login-form {
   margin-bottom: 1.5rem;
 }
@@ -179,6 +265,16 @@ async function handleLogin() {
   padding: 0.85rem;
   font-size: 1rem;
   margin-top: 0.5rem;
+}
+
+.alert-error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
 }
 
 .spinner {

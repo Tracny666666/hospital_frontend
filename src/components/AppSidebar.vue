@@ -1,45 +1,56 @@
 <script setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { authStore } from '../stores/auth.js'
 
 defineProps({ collapsed: Boolean })
 const route = useRoute()
 
-const menuGroups = [
+const allMenuGroups = [
   {
     title: '',
     items: [
-      { path: '/dashboard', label: '首页概览', icon: '🏠' },
+      { path: '/dashboard', label: '首页概览', icon: '🏠', roles: ['admin', 'doctor', 'patient'] },
     ]
   },
   {
     title: '业务管理',
     items: [
-      { path: '/register', label: '挂号管理', icon: '📋' },
+      { path: '/register', label: '挂号管理', icon: '📋', roles: ['admin', 'doctor'] },
     ]
   },
   {
     title: '字典管理',
     items: [
-      { path: '/employee', label: '员工管理', icon: '👨‍⚕️' },
-      { path: '/department', label: '科室管理', icon: '🏥' },
-      { path: '/scheduling', label: '排班管理', icon: '📅' },
-      { path: '/regist-level', label: '挂号级别', icon: '💰' },
-      { path: '/settle-category', label: '结算类别', icon: '💳' },
-      { path: '/medical-technology', label: '医技项目', icon: '🔬' },
-      { path: '/drug-info', label: '药品信息', icon: '💊' },
-      { path: '/disease', label: '疾病管理', icon: '🦠' },
+      { path: '/employee', label: '员工管理', icon: '👨‍⚕️', roles: ['admin'] },
+      { path: '/department', label: '科室管理', icon: '🏥', roles: ['admin'] },
+      { path: '/scheduling', label: '排班管理', icon: '📅', roles: ['admin'] },
+      { path: '/regist-level', label: '挂号级别', icon: '💰', roles: ['admin'] },
+      { path: '/settle-category', label: '结算类别', icon: '💳', roles: ['admin'] },
+      { path: '/medical-technology', label: '医技项目', icon: '🔬', roles: ['admin', 'doctor'] },
+      { path: '/drug-info', label: '药品信息', icon: '💊', roles: ['admin', 'doctor'] },
+      { path: '/disease', label: '疾病管理', icon: '🦠', roles: ['admin', 'doctor'] },
     ]
   },
   {
     title: '医技管理',
     items: [
-      { path: '/check-request', label: '检查申请', icon: '📝' },
-      { path: '/inspection-request', label: '检验申请', icon: '🔬' },
-      { path: '/disposal-request', label: '处置申请', icon: '💉' },
-      { path: '/prescription', label: '处方管理', icon: '📋' },
+      { path: '/check-request', label: '检查申请', icon: '📝', roles: ['admin', 'doctor'] },
+      { path: '/inspection-request', label: '检验申请', icon: '🔬', roles: ['admin', 'doctor'] },
+      { path: '/disposal-request', label: '处置申请', icon: '💉', roles: ['admin', 'doctor'] },
+      { path: '/prescription', label: '处方管理', icon: '📋', roles: ['admin', 'doctor'] },
     ]
   }
 ]
+
+const menuGroups = computed(() => {
+  return allMenuGroups
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item => item.roles.includes(authStore.role))
+    }))
+    .filter(group => group.items.length > 0)
+})
 </script>
 
 <template>

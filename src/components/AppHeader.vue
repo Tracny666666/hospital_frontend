@@ -3,11 +3,13 @@ import { ref, reactive } from 'vue'
 import { authStore } from '../stores/auth.js'
 import { changePassword, logout as logoutApi } from '../api/auth.js'
 import { useToast } from '../composables/useToast.js'
+import { useRole } from '../composables/useRole.js'
 import { useRouter } from 'vue-router'
 
 defineEmits(['toggleSidebar'])
 const router = useRouter()
 const toast = useToast()
+const { roleLabel } = useRole()
 
 const showMenu = ref(false)
 const showPwdModal = ref(false)
@@ -59,6 +61,7 @@ async function handleChangePwd() {
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
           {{ authStore.userInfo.realname }}
+          <span class="role-tag">{{ roleLabel }}</span>
           <span class="header-dept" v-if="authStore.userInfo.deptName"> · {{ authStore.userInfo.deptName }}</span>
         </span>
         <div class="dropdown" v-if="showMenu">
@@ -102,6 +105,13 @@ async function handleChangePwd() {
 .header-right { display: flex; align-items: center; gap: 1rem; }
 .header-user { display: flex; align-items: center; font-size: 0.875rem; cursor: pointer; }
 .header-dept { opacity: 0.8; }
+.role-tag {
+  display: inline-block;
+  padding: 0 6px;
+  font-size: 0.65rem;
+  background: rgba(255,255,255,0.25);
+  border-radius: 4px;
+}
 .user-menu { position: relative; }
 .dropdown {
   position: absolute;

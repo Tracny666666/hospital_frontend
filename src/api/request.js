@@ -28,6 +28,7 @@ request.interceptors.response.use(
       if (body.code === 401) {
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
+        localStorage.removeItem('role')
         window.location.href = '/login'
       }
       return Promise.reject(new Error(msg))
@@ -40,6 +41,7 @@ request.interceptors.response.use(
       if (status === 401) {
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
+        localStorage.removeItem('role')
         window.location.href = '/login'
         return Promise.reject(new Error('登录已过期，请重新登录'))
       }
