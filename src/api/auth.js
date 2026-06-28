@@ -19,17 +19,6 @@ export function getCurrentUser() {
 }
 
 /**
- * 重置密码
- * @param {number} id - 员工工号
- * @param {string} realname - 真实姓名（用于身份验证）
- * @param {string} newPassword - 新密码
- * @returns {Promise<void>}
- */
-export function resetPassword(id, realname, newPassword) {
-  return request.post('/auth/reset-password', { id, realname, newPassword }).then(res => res.data)
-}
-
-/**
  * 修改当前登录用户密码
  * @param {string} oldPassword - 原密码
  * @param {string} newPassword - 新密码
